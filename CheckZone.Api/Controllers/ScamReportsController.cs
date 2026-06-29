@@ -61,7 +61,7 @@ namespace CheckZone.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (string.IsNullOrEmpty(dto.CaptchaToken) || !await ValidateTurnstileToken(dto.CaptchaToken))
+            if (string.IsNullOrEmpty(dto.TurnstileToken) || !await ValidateTurnstileToken(dto.TurnstileToken))
             {
                 return BadRequest(new { message = "Xác minh mã CAPTCHA người máy thất bại hoặc không hợp lệ." });
             }

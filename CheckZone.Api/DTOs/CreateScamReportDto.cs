@@ -50,6 +50,6 @@ namespace CheckZone.Api.DTOs
         public int Category { get; set; }
 
         [Required]
-        public string CaptchaToken { get; set; } = string.Empty;
+        public string TurnstileToken { get; set; } = string.Empty;
     }
 }
