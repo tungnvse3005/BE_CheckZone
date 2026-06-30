@@ -7,10 +7,66 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure dynamic port for Railway
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Check if we are running in Railway (using individual MySQL env variables or MYSQL_URL)
+var mysqlHost = Environment.GetEnvironmentVariable("MYSQLHOST");
+if (!string.IsNullOrEmpty(mysqlHost))
+{
+    var mysqlUser = Environment.GetEnvironmentVariable("MYSQLUSER");
+    var mysqlPassword = Environment.GetEnvironmentVariable("MYSQLPASSWORD");
+    var mysqlPort = Environment.GetEnvironmentVariable("MYSQLPORT") ?? "3306";
+    var mysqlDatabase = Environment.GetEnvironmentVariable("MYSQLDATABASE");
+    connectionString = $"Server={mysqlHost};Port={mysqlPort};Database={mysqlDatabase};Uid={mysqlUser};Pwd={mysqlPassword};";
+}
+else
+{
+    var mysqlUrl = Environment.GetEnvironmentVariable("MYSQL_URL");
+    if (!string.IsNullOrEmpty(mysqlUrl))
+    {
+        try
+        {
+            var uri = new Uri(mysqlUrl);
+            var userInfo = uri.UserInfo.Split(':');
+            var user = userInfo[0];
+            var password = userInfo.Length > 1 ? userInfo[1] : "";
+            var host = uri.Host;
+            var portNum = uri.Port == -1 ? 3306 : uri.Port;
+            var database = uri.AbsolutePath.TrimStart('/');
+            connectionString = $"Server={host};Port={portNum};Database={database};Uid={user};Pwd={password};";
+        }
+        catch
+        {
+            // Fallback if parsing fails
+        }
+    }
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))));
+{
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException("Database connection string is not configured.");
+    }
+
+    ServerVersion serverVersion;
+    try
+    {
+        serverVersion = ServerVersion.AutoDetect(connectionString);
+    }
+    catch
+    {
+        // Fallback to MySQL 8.0 if database is not reachable at startup
+        serverVersion = new MySqlServerVersion(new System.Version(8, 0, 30));
+    }
+
+    options.UseMySql(connectionString, serverVersion);
+});
 
 builder.Services.AddScoped<IScamReportService, ScamReportService>();
 builder.Services.AddScoped<ILegitProfileService, LegitProfileService>();
@@ -68,9 +124,20 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
+        if (!string.IsNullOrEmpty(frontendUrl))
+        {
+            policy.WithOrigins(frontendUrl.Split(','))
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        else
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
     });
 });
 
