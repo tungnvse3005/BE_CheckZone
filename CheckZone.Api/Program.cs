@@ -144,13 +144,12 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in all environments so we can test the production API
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+// Do NOT use HTTPS redirection - Railway handles HTTPS at the load balancer level
+// app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
