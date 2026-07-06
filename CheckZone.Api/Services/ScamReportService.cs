@@ -77,18 +77,15 @@ namespace CheckZone.Api.Services
             _context.ScamReports.Add(report);
             await _context.SaveChangesAsync();
 
-            // Fire-and-forget Discord Webhook notification running in background task
-            _ = Task.Run(async () =>
+            // Await directly to ensure the HTTP request to Discord finishes before Kestrel disposes/throttles the thread on Cloud environments
+            try
             {
-                try
-                {
-                    await _discordNotificationService.SendScamReportNotificationAsync(report);
-                }
-                catch
-                {
-                    // Ignore background task exceptions to prevent app crash
-                }
-            });
+                await _discordNotificationService.SendScamReportNotificationAsync(report);
+            }
+            catch
+            {
+                // Ignore to ensure API still returns 201 Created even if Discord is down
+            }
 
             return MapToDto(report);
         }
