@@ -27,10 +27,14 @@ namespace CheckZone.Api.Services
 
         public async Task SendScamReportNotificationAsync(ScamReport report)
         {
-            var webhookUrl = _configuration["Discord:WebhookUrl"];
+            var webhookUrl = _configuration["Discord:WebhookUrl"]
+                             ?? _configuration["DISCORD_WEBHOOK_URL"]
+                             ?? _configuration["Discord_WebhookUrl"]
+                             ?? _configuration["DiscordWebhookUrl"];
+
             if (string.IsNullOrWhiteSpace(webhookUrl))
             {
-                _logger.LogWarning("Discord Webhook URL is not configured. Skipping notification.");
+                _logger.LogWarning("Discord Webhook URL is not configured. Skipping notification. Checked keys: Discord:WebhookUrl, DISCORD_WEBHOOK_URL, Discord_WebhookUrl, DiscordWebhookUrl");
                 return;
             }
 
