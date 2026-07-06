@@ -5,6 +5,8 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using CheckZone.Api.Data;
 using CheckZone.Api.Entities;
 
 namespace CheckZone.Api.Services
@@ -14,30 +16,55 @@ namespace CheckZone.Api.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly ILogger<DiscordNotificationService> _logger;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public DiscordNotificationService(
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
-            ILogger<DiscordNotificationService> logger)
+            ILogger<DiscordNotificationService> logger,
+            IServiceScopeFactory scopeFactory)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _logger = logger;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task SendScamReportNotificationAsync(ScamReport report)
         {
-            var webhookUrl = _configuration["Discord:WebhookUrl"]
-                             ?? _configuration["DiscordWebhookUrl"]
-                             ?? _configuration["DISCORD__WEBHOOKURL"]
-                             ?? Environment.GetEnvironmentVariable("Discord__WebhookUrl")
-                             ?? Environment.GetEnvironmentVariable("DISCORD_WEBHOOK_URL")
-                             ?? Environment.GetEnvironmentVariable("Discord_WebhookUrl")
-                             ?? Environment.GetEnvironmentVariable("DiscordWebhookUrl");
+            string? webhookUrl = null;
+
+            try
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var settings = await context.SystemConfigurations.FindAsync(1);
+                    if (settings != null && !string.IsNullOrWhiteSpace(settings.DiscordWebhookUrl))
+                    {
+                        webhookUrl = settings.DiscordWebhookUrl;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reading Discord Webhook URL from database. Falling back to environment variables.");
+            }
 
             if (string.IsNullOrWhiteSpace(webhookUrl))
             {
-                _logger.LogWarning("[Discord Webhook Warning] Discord Webhook URL is empty or null. Checked keys: Discord:WebhookUrl, DiscordWebhookUrl, DISCORD__WEBHOOKURL");
+                webhookUrl = _configuration["Discord:WebhookUrl"]
+                                 ?? _configuration["DiscordWebhookUrl"]
+                                 ?? _configuration["DISCORD__WEBHOOKURL"]
+                                 ?? Environment.GetEnvironmentVariable("Discord__WebhookUrl")
+                                 ?? Environment.GetEnvironmentVariable("DISCORD_WEBHOOK_URL")
+                                 ?? Environment.GetEnvironmentVariable("Discord_WebhookUrl")
+                                 ?? Environment.GetEnvironmentVariable("DiscordWebhookUrl");
+            }
+
+            if (string.IsNullOrWhiteSpace(webhookUrl))
+            {
+                _logger.LogWarning("[Discord Webhook Warning] Discord Webhook URL is empty or null. Checked database and environment keys.");
                 return;
             }
 

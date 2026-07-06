@@ -35,5 +35,9 @@ namespace CheckZone.Api.Entities
         [MaxLength(255)]
         [Column("telegram_bot_token")]
         public string? TelegramBotToken { get; set; }
+
+        [MaxLength(500)]
+        [Column("discord_webhook_url")]
+        public string? DiscordWebhookUrl { get; set; }
     }
 }

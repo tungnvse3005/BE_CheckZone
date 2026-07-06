@@ -118,6 +118,23 @@ namespace CheckZone.Api.Data
                 }
             }
 
+            // Seed SystemConfiguration if not present
+            if (!context.SystemConfigurations.Any())
+            {
+                context.SystemConfigurations.Add(new SystemConfiguration
+                {
+                    Id = 1,
+                    RequireEvidence = true,
+                    AutoApprove = false,
+                    MinInsurance = 10000000.00m,
+                    AdminName = "Ban điều hành Check Zone Việt Nam",
+                    AdminEmail = "support@checkzone.vn",
+                    TelegramBotToken = null,
+                    DiscordWebhookUrl = null
+                });
+                changesMade = true;
+            }
+
             if (changesMade)
             {
                 context.SaveChanges();
