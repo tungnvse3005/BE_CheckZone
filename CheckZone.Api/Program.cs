@@ -74,6 +74,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IScamReportService, ScamReportService>();
 builder.Services.AddScoped<ILegitProfileService, LegitProfileService>();
+builder.Services.AddScoped<IDiscordNotificationService, DiscordNotificationService>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddControllers();

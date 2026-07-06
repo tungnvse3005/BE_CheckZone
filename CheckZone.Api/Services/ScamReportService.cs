@@ -12,10 +12,12 @@ namespace CheckZone.Api.Services
     public class ScamReportService : IScamReportService
     {
         private readonly AppDbContext _context;
+        private readonly IDiscordNotificationService _discordNotificationService;
 
-        public ScamReportService(AppDbContext context)
+        public ScamReportService(AppDbContext context, IDiscordNotificationService discordNotificationService)
         {
             _context = context;
+            _discordNotificationService = discordNotificationService;
         }
 
         public async Task<IEnumerable<ScamReportDto>> GetAllApprovedAsync()
@@ -74,6 +76,19 @@ namespace CheckZone.Api.Services
 
             _context.ScamReports.Add(report);
             await _context.SaveChangesAsync();
+
+            // Fire-and-forget Discord Webhook notification running in background task
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _discordNotificationService.SendScamReportNotificationAsync(report);
+                }
+                catch
+                {
+                    // Ignore background task exceptions to prevent app crash
+                }
+            });
 
             return MapToDto(report);
         }
