@@ -28,6 +28,10 @@ namespace CheckZone.Api.Services
         public async Task SendScamReportNotificationAsync(ScamReport report)
         {
             var webhookUrl = _configuration["Discord:WebhookUrl"]
+                             ?? Environment.GetEnvironmentVariable("Discord__WebhookUrl")
+                             ?? Environment.GetEnvironmentVariable("DISCORD_WEBHOOK_URL")
+                             ?? Environment.GetEnvironmentVariable("Discord_WebhookUrl")
+                             ?? Environment.GetEnvironmentVariable("DiscordWebhookUrl")
                              ?? _configuration["DISCORD_WEBHOOK_URL"]
                              ?? _configuration["Discord_WebhookUrl"]
                              ?? _configuration["DiscordWebhookUrl"];
