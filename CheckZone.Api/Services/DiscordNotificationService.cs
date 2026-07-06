@@ -28,17 +28,16 @@ namespace CheckZone.Api.Services
         public async Task SendScamReportNotificationAsync(ScamReport report)
         {
             var webhookUrl = _configuration["Discord:WebhookUrl"]
+                             ?? _configuration["DiscordWebhookUrl"]
+                             ?? _configuration["DISCORD__WEBHOOKURL"]
                              ?? Environment.GetEnvironmentVariable("Discord__WebhookUrl")
                              ?? Environment.GetEnvironmentVariable("DISCORD_WEBHOOK_URL")
                              ?? Environment.GetEnvironmentVariable("Discord_WebhookUrl")
-                             ?? Environment.GetEnvironmentVariable("DiscordWebhookUrl")
-                             ?? _configuration["DISCORD_WEBHOOK_URL"]
-                             ?? _configuration["Discord_WebhookUrl"]
-                             ?? _configuration["DiscordWebhookUrl"];
+                             ?? Environment.GetEnvironmentVariable("DiscordWebhookUrl");
 
             if (string.IsNullOrWhiteSpace(webhookUrl))
             {
-                _logger.LogWarning("Discord Webhook URL is not configured. Skipping notification. Checked keys: Discord:WebhookUrl, DISCORD_WEBHOOK_URL, Discord_WebhookUrl, DiscordWebhookUrl");
+                _logger.LogWarning("[Discord Webhook Warning] Discord Webhook URL is empty or null. Checked keys: Discord:WebhookUrl, DiscordWebhookUrl, DISCORD__WEBHOOKURL");
                 return;
             }
 
@@ -84,7 +83,9 @@ namespace CheckZone.Api.Services
                     }
                 };
 
-                var response = await httpClient.PostAsJsonAsync(webhookUrl, payload);
+                var content = JsonContent.Create(payload);
+                var response = await httpClient.PostAsync(webhookUrl, content);
+
                 if (response.IsSuccessStatusCode)
                 {
                     _logger.LogInformation("Successfully sent Discord notification for scam report {ReportId}", report.Id);
@@ -92,7 +93,7 @@ namespace CheckZone.Api.Services
                 else
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Failed to send Discord notification. Status: {StatusCode}, Error: {Error}", response.StatusCode, responseContent);
+                    _logger.LogError("[Discord Webhook Error Detail] Status: {StatusCode}, Error: {Error}", response.StatusCode, responseContent);
                 }
             }
             catch (Exception ex)
