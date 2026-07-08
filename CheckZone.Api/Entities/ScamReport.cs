@@ -80,5 +80,13 @@ namespace CheckZone.Api.Entities
         [Required]
         [Column("category")]
         public ScamCategory Category { get; set; } = ScamCategory.FinancialScam;
+
+        [MaxLength(255)]
+        [Column("verifier_name")]
+        public string? VerifierName { get; set; }
+
+        [MaxLength(50)]
+        [Column("verifier_zalo")]
+        public string? VerifierZalo { get; set; }
     }
 }

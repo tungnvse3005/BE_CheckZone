@@ -71,7 +71,9 @@ namespace CheckZone.Api.Services
                 Facebook = dto.Facebook,
                 Images = dto.Images,
                 CreatedAt = DateTime.UtcNow,
-                Category = (ScamCategory)dto.Category
+                Category = (ScamCategory)dto.Category,
+                VerifierName = dto.VerifierName,
+                VerifierZalo = dto.VerifierZalo
             };
 
             _context.ScamReports.Add(report);
@@ -117,6 +119,8 @@ namespace CheckZone.Api.Services
             report.Tags = dto.Tags;
             report.Images = dto.Images;
             report.Category = (ScamCategory)dto.Category;
+            report.VerifierName = dto.VerifierName;
+            report.VerifierZalo = dto.VerifierZalo;
 
             await _context.SaveChangesAsync();
             return true;
@@ -175,7 +179,9 @@ namespace CheckZone.Api.Services
                 Facebook = report.Facebook,
                 Images = report.Images,
                 CreatedAt = report.CreatedAt,
-                Category = (int)report.Category
+                Category = (int)report.Category,
+                VerifierName = report.VerifierName,
+                VerifierZalo = report.VerifierZalo
             };
         }
     }

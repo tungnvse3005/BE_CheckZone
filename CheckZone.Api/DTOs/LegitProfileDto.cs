@@ -15,5 +15,8 @@ namespace CheckZone.Api.DTOs
         public string JoinDate { get; set; } = string.Empty;
         public string BusinessType { get; set; } = string.Empty;
         public string Tier { get; set; } = string.Empty; // badge like "Hạng Kim Cương"
+        public string? Facebook { get; set; }
+        public string? Address { get; set; }
+        public string? Website { get; set; }
     }
 }

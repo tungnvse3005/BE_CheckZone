@@ -60,5 +60,22 @@ namespace CheckZone.Api.Controllers
             }
             return Ok();
         }
+
+        [Authorize]
+        [HttpPut("admin/legit/{id}")]
+        public async Task<IActionResult> UpdateProfile(int id, [FromBody] CreateLegitProfileDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var success = await _legitProfileService.UpdateProfileAsync(id, dto);
+            if (!success)
+            {
+                return NotFound();
+            }
+            return Ok();
+        }
     }
 }

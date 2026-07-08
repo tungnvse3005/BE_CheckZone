@@ -10,5 +10,6 @@ namespace CheckZone.Api.Services
         Task<LegitProfileDto?> GetByIdAsync(int id);
         Task<LegitProfileDto> CreateProfileAsync(CreateLegitProfileDto dto);
         Task<bool> DeleteProfileAsync(int id);
+        Task<bool> UpdateProfileAsync(int id, CreateLegitProfileDto dto);
     }
 }

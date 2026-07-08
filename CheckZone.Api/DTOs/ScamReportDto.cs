@@ -20,5 +20,7 @@ namespace CheckZone.Api.DTOs
         public List<string> Images { get; set; } = new List<string>();
         public DateTime CreatedAt { get; set; }
         public int Category { get; set; }
+        public string? VerifierName { get; set; }
+        public string? VerifierZalo { get; set; }
     }
 }

@@ -62,5 +62,17 @@ namespace CheckZone.Api.Entities
         [MaxLength(255)]
         [Column("business_type")]
         public string BusinessType { get; set; } = string.Empty;
+
+        [MaxLength(512)]
+        [Column("facebook")]
+        public string? Facebook { get; set; }
+
+        [MaxLength(500)]
+        [Column("address")]
+        public string? Address { get; set; }
+
+        [MaxLength(255)]
+        [Column("website")]
+        public string? Website { get; set; }
     }
 }

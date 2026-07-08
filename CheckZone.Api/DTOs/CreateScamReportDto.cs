@@ -51,5 +51,11 @@ namespace CheckZone.Api.DTOs
 
         [Required]
         public string TurnstileToken { get; set; } = string.Empty;
+
+        [StringLength(255)]
+        public string? VerifierName { get; set; }
+
+        [StringLength(50)]
+        public string? VerifierZalo { get; set; }
     }
 }

@@ -38,5 +38,9 @@ namespace CheckZone.Api.Entities
 
         [Column("content", TypeName = "text")]
         public string? Content { get; set; }
+
+        [MaxLength(1024)]
+        [Column("thumbnail_url")]
+        public string? ThumbnailUrl { get; set; }
     }
 }

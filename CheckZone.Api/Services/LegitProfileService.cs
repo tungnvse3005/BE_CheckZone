@@ -44,7 +44,10 @@ namespace CheckZone.Api.Services
                 Insurance = dto.Insurance,
                 SuccessTrans = dto.SuccessTrans,
                 JoinDate = dto.JoinDate,
-                BusinessType = dto.BusinessType
+                BusinessType = dto.BusinessType,
+                Facebook = dto.Facebook,
+                Address = dto.Address,
+                Website = dto.Website
             };
 
             _context.LegitProfiles.Add(profile);
@@ -59,6 +62,30 @@ namespace CheckZone.Api.Services
             if (profile == null) return false;
 
             _context.LegitProfiles.Remove(profile);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateProfileAsync(int id, CreateLegitProfileDto dto)
+        {
+            var profile = await _context.LegitProfiles.FindAsync(id);
+            if (profile == null) return false;
+
+            profile.Name = dto.Name;
+            profile.Role = dto.Role;
+            profile.Score = dto.Score;
+            profile.Img = dto.Img;
+            profile.Desc = dto.Desc;
+            profile.Phone = dto.Phone;
+            profile.Telegram = dto.Telegram;
+            profile.Insurance = dto.Insurance;
+            profile.SuccessTrans = dto.SuccessTrans;
+            profile.JoinDate = dto.JoinDate;
+            profile.BusinessType = dto.BusinessType;
+            profile.Facebook = dto.Facebook;
+            profile.Address = dto.Address;
+            profile.Website = dto.Website;
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -93,7 +120,10 @@ namespace CheckZone.Api.Services
                 SuccessTrans = profile.SuccessTrans,
                 JoinDate = profile.JoinDate,
                 BusinessType = profile.BusinessType,
-                Tier = tier
+                Tier = tier,
+                Facebook = profile.Facebook,
+                Address = profile.Address,
+                Website = profile.Website
             };
         }
     }

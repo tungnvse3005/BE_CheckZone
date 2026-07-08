@@ -42,5 +42,11 @@ namespace CheckZone.Api.DTOs
         public List<string> Tags { get; set; } = new List<string>();
         public List<string> Images { get; set; } = new List<string>();
         public int Category { get; set; }
+
+        [StringLength(255)]
+        public string? VerifierName { get; set; }
+
+        [StringLength(50)]
+        public string? VerifierZalo { get; set; }
     }
 }

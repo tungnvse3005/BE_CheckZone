@@ -46,5 +46,14 @@ namespace CheckZone.Api.DTOs
         [Required]
         [StringLength(255)]
         public string BusinessType { get; set; } = string.Empty;
+
+        [StringLength(512)]
+        public string? Facebook { get; set; }
+
+        [StringLength(500)]
+        public string? Address { get; set; }
+
+        [StringLength(255)]
+        public string? Website { get; set; }
     }
 }
