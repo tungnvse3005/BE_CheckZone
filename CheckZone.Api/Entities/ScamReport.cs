@@ -88,5 +88,9 @@ namespace CheckZone.Api.Entities
         [MaxLength(50)]
         [Column("verifier_zalo")]
         public string? VerifierZalo { get; set; }
+
+        [Required]
+        [Column("report_count")]
+        public int ReportCount { get; set; } = 1;
     }
 }

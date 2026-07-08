@@ -48,5 +48,8 @@ namespace CheckZone.Api.DTOs
 
         [StringLength(50)]
         public string? VerifierZalo { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int ReportCount { get; set; } = 1;
     }
 }

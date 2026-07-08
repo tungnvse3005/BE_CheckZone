@@ -22,5 +22,7 @@ namespace CheckZone.Api.DTOs
         public int Category { get; set; }
         public string? VerifierName { get; set; }
         public string? VerifierZalo { get; set; }
+        public int ReportCount { get; set; }
+        public bool IsDuplicate { get; set; }
     }
 }

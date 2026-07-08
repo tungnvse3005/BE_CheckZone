@@ -121,6 +121,7 @@ namespace CheckZone.Api.Services
             report.Category = (ScamCategory)dto.Category;
             report.VerifierName = dto.VerifierName;
             report.VerifierZalo = dto.VerifierZalo;
+            report.ReportCount = dto.ReportCount;
 
             await _context.SaveChangesAsync();
             return true;
@@ -139,7 +140,33 @@ namespace CheckZone.Api.Services
         public async Task<IEnumerable<ScamReportDto>> GetAllAsync()
         {
             var reports = await _context.ScamReports.ToListAsync();
-            return reports.Select(MapToDto);
+            var dtos = reports.Select(MapToDto).ToList();
+
+            var dupPhones = dtos
+                .Where(x => !string.IsNullOrWhiteSpace(x.Phone))
+                .GroupBy(x => x.Phone!.Trim())
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var dupAccounts = dtos
+                .Where(x => !string.IsNullOrWhiteSpace(x.AccountNumber))
+                .GroupBy(x => x.AccountNumber.Trim())
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var dto in dtos)
+            {
+                bool isDupPhone = !string.IsNullOrWhiteSpace(dto.Phone) && dupPhones.Contains(dto.Phone.Trim());
+                bool isDupAccount = !string.IsNullOrWhiteSpace(dto.AccountNumber) && dupAccounts.Contains(dto.AccountNumber.Trim());
+                if (isDupPhone || isDupAccount)
+                {
+                    dto.IsDuplicate = true;
+                }
+            }
+
+            return dtos;
         }
 
         public async Task<IEnumerable<ScamReportDto>> SearchReportsAsync(string query)
@@ -181,7 +208,8 @@ namespace CheckZone.Api.Services
                 CreatedAt = report.CreatedAt,
                 Category = (int)report.Category,
                 VerifierName = report.VerifierName,
-                VerifierZalo = report.VerifierZalo
+                VerifierZalo = report.VerifierZalo,
+                ReportCount = report.ReportCount
             };
         }
     }
