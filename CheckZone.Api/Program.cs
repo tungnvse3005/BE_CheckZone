@@ -134,14 +134,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
-        var allowedOrigins = new List<string> 
-        { 
+        var allowedOrigins = new List<string>
+        {
             "http://localhost:3000",
             "http://localhost:3001",
-            "http://localhost:5173", 
-            "http://localhost:5174" 
+            "http://localhost:5173",
+            "http://localhost:5174",
+            // Vercel production domain
+            "https://check-legit-fe-demo.vercel.app"
         };
-        
+
         if (!string.IsNullOrEmpty(frontendUrl))
         {
             allowedOrigins.AddRange(frontendUrl.Split(','));
