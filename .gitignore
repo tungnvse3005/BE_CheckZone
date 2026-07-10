@@ -37,3 +37,10 @@ secrets.json
 # Backup/temporary files
 *.bak
 *.tmp
+
+# Custom project ignores
+appsettings.json
+appsettings.*.json
+.env
+[Bb]in/
+[Oo]bj/
