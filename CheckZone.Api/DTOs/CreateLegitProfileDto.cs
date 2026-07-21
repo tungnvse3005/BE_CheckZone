@@ -17,7 +17,7 @@ namespace CheckZone.Api.DTOs
         public int Score { get; set; } = 100;
 
         [Required]
-        [StringLength(512)]
+        [StringLength(4096)]
         public string Img { get; set; } = "https://images.domain.com/default-avatar.png";
 
         [Required]

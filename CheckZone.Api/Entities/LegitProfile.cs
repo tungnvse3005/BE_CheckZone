@@ -27,7 +27,7 @@ namespace CheckZone.Api.Entities
         public int Score { get; set; } = 100;
 
         [Required]
-        [MaxLength(512)]
+        [MaxLength(4096)]
         [Column("img")]
         public string Img { get; set; } = "https://images.domain.com/default-avatar.png";
 

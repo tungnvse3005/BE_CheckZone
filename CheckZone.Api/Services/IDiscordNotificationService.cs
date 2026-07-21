@@ -6,5 +6,6 @@ namespace CheckZone.Api.Services
     public interface IDiscordNotificationService
     {
         Task SendScamReportNotificationAsync(ScamReport report);
+        Task SendContactNotificationAsync(string name, string email, string message);
     }
 }

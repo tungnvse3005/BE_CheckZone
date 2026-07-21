@@ -135,6 +135,51 @@ namespace CheckZone.Api.Data
                 changesMade = true;
             }
 
+            // Seed BlogArticles if not present
+            if (!context.BlogArticles.Any())
+            {
+                context.BlogArticles.AddRange(new List<BlogArticle>
+                {
+                    new BlogArticle
+                    {
+                        Id = "ART-1001",
+                        Title = "Cảnh báo khẩn cấp chiêu trò giả mạo shipper gọi điện nhận hàng",
+                        Category = "Cảnh báo khẩn cấp",
+                        CreatedAt = DateTime.UtcNow.AddDays(-2),
+                        Slug = "canh-bao-gia-mao-shipper-giao-hang",
+                        Status = "Đã đăng",
+                        Content = "Thời gian gần đây, xuất hiện tình trạng kẻ gian giả mạo nhân viên giao hàng gọi điện thông báo có đơn hàng COD. Đối tượng yêu cầu chuyển khoản trước hoặc tải ứng dụng giả mạo để xác nhận đơn. Người dân cần hết sức cảnh giác, tuyệt đối không chuyển tiền khi chưa trực tiếp cầm hàng.",
+                        Thumbnail = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80",
+                        ThumbnailUrl = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80"
+                    },
+                    new BlogArticle
+                    {
+                        Id = "ART-1002",
+                        Title = "HƯỚNG DẪN: An toàn giao dịch trung gian khi mua bán tài khoản MMO",
+                        Category = "HƯỚNG DẪN & THỦ THUẬT",
+                        CreatedAt = DateTime.UtcNow.AddDays(-5),
+                        Slug = "huong-dan-giao-dich-trung-gian-mmo",
+                        Status = "Đã đăng",
+                        Content = "Giao dịch tài khoản game, fanpage và tài nguyên MMO trực tuyến tiềm ẩn nhiều rủi ro bị đổi pass hoặc thu hồi. Hãy luôn sử dụng dịch vụ trung gian từ các thương nhân có ký quỹ uy tín tại Check Zone để bảo vệ tiền của bạn.",
+                        Thumbnail = "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80",
+                        ThumbnailUrl = "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80"
+                    },
+                    new BlogArticle
+                    {
+                        Id = "ART-1003",
+                        Title = "Nhận biết sàn đầu tư phái sinh lừa đảo cam kết lãi suất 300%/tháng",
+                        Category = "Cảnh báo tài chính",
+                        CreatedAt = DateTime.UtcNow.AddDays(-8),
+                        Slug = "dau-tu-phai-sinh-cam-ket-lai-suat-cao-lua-dao",
+                        Status = "Đã đăng",
+                        Content = "Các đối tượng lừa đảo thường vẽ ra mô hình đầu tư tài chính siêu lợi nhuận, cam kết bao lỗ và bao rút vốn. Khi số tiền nạp đủ lớn, sàn giả mạo sẽ khóa tài khoản hoặc yêu cầu nộp thêm tiền thuế/phí để rút vốn.",
+                        Thumbnail = "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80",
+                        ThumbnailUrl = "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80"
+                    }
+                });
+                changesMade = true;
+            }
+
             if (changesMade)
             {
                 context.SaveChanges();

@@ -149,5 +149,93 @@ namespace CheckZone.Api.Services
                 _logger.LogError(ex, "Error occurred while sending Discord notification for scam report {ReportId}", report.Id);
             }
         }
+
+        public async Task SendContactNotificationAsync(string name, string email, string message)
+        {
+            string? webhookUrl = null;
+
+            try
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var settings = await context.SystemConfigurations.FindAsync(1);
+                    if (settings != null && !string.IsNullOrWhiteSpace(settings.DiscordWebhookUrl))
+                    {
+                        webhookUrl = settings.DiscordWebhookUrl;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reading Discord Webhook URL from database.");
+            }
+
+            if (string.IsNullOrWhiteSpace(webhookUrl))
+            {
+                webhookUrl = _configuration["Discord:WebhookUrl"]
+                                 ?? _configuration["DiscordWebhookUrl"]
+                                 ?? _configuration["DISCORD__WEBHOOKURL"]
+                                 ?? Environment.GetEnvironmentVariable("Discord__WebhookUrl")
+                                 ?? Environment.GetEnvironmentVariable("DISCORD_WEBHOOK_URL")
+                                 ?? Environment.GetEnvironmentVariable("Discord_WebhookUrl")
+                                 ?? Environment.GetEnvironmentVariable("DiscordWebhookUrl");
+            }
+
+            if (string.IsNullOrWhiteSpace(webhookUrl))
+            {
+                _logger.LogWarning("[Discord Webhook Warning] Discord Webhook URL is empty or null for contact notification.");
+                return;
+            }
+
+            webhookUrl = webhookUrl.Trim();
+            if (webhookUrl.EndsWith("]"))
+            {
+                webhookUrl = webhookUrl.Substring(0, webhookUrl.Length - 1).Trim();
+            }
+
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+
+                var embed = new
+                {
+                    title = "📩 YÊU CẦU LIÊN HỆ BAN VẬN HÀNH MỚI",
+                    description = "Có người dùng vừa gửi thông điệp liên hệ/khiếu nại từ trang Check Zone.",
+                    color = 3066993, // Green #2ecc71
+                    fields = new[]
+                    {
+                        new { name = "👤 Họ và tên", value = !string.IsNullOrWhiteSpace(name) ? name : "Chưa cung cấp", inline = true },
+                        new { name = "📧 Email nhận phản hồi", value = !string.IsNullOrWhiteSpace(email) ? email : "Chưa cung cấp", inline = true },
+                        new { name = "📝 Chi tiết nội dung yêu cầu", value = message?.Length > 1000 ? message.Substring(0, 997) + "..." : (message ?? "Không có nội dung"), inline = false }
+                    },
+                    timestamp = DateTime.UtcNow.ToString("o")
+                };
+
+                var payload = new
+                {
+                    username = "CheckZone Support Center",
+                    avatar_url = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+                    embeds = new[] { embed }
+                };
+
+                var content = JsonContent.Create(payload);
+                var response = await httpClient.PostAsync(webhookUrl, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Successfully sent contact notification to Discord for {Name} ({Email})", name, email);
+                }
+                else
+                {
+                    var errorDetail = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to send contact notification to Discord. Status: {Status}, Error: {Error}", response.StatusCode, errorDetail);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending contact notification to Discord.");
+            }
+        }
     }
 }
