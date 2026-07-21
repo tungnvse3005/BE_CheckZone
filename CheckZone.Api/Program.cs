@@ -159,18 +159,20 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Tự động chạy Migration cập nhật Database khi khởi động Server
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
         DbInitializer.Initialize(context);
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
     }
 }
 
