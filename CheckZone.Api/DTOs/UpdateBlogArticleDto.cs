@@ -20,7 +20,7 @@ namespace CheckZone.Api.DTOs
 
         public string? Content { get; set; }
 
-        [StringLength(2048)]
+        [StringLength(4096)]
         public string Thumbnail { get; set; } = string.Empty;
     }
 }
